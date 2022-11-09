@@ -15,6 +15,8 @@ LUAJIT_CFLAGS = -I$(LUAJIT_SRC_DIR)
 LUAJIT_ARCHIVE = $(LUAJIT)/src/libluajit.a
 LUAJIT_URL = http://luajit.org/download/$(LUAJIT_VER).tar.gz
 
+C_LOG = https://github.com/rxi/log.c/archive/refs/heads/master.zip
+
 LPEG_VER = lpeg-0.10.2
 LPEG_CHECKSUM = d1a7698e4bcd0ac305633774062d22b27300a41673c3d733ea9993244a64ea6f
 LPEG = deps/$(LPEG_VER)
@@ -35,15 +37,16 @@ ifeq ($(UNAME_S),Darwin)
 else
 	LD_FLAGS = -Wl,-E
 endif
-OBJECTS = main.o process_helpers.o
+
+OBJECTS = main.o process_helpers.o log.o
 DEP_OBJECTS = $(LPEG_OBJECT)
 
 all: howl bytecode
 
-howl: ${OBJECTS} main.h $(ARCHIVES) $(DEP_OBJECTS) Makefile
+howl: ${OBJECTS} main.h log.h $(ARCHIVES) $(DEP_OBJECTS) Makefile
 	${CC} -o howl ${OBJECTS} $(DEP_OBJECTS) ${ARCHIVES} ${LIBS} ${LD_FLAGS}
 
-${OBJECTS}: %.o : %.c main.h $(LUAJIT)
+${OBJECTS}: %.o : %.c main.h log.h $(LUAJIT)
 	${CC} -c $< ${CFLAGS}
 
 $(LPEG):

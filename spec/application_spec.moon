@@ -27,6 +27,7 @@ describe 'Application', ->
       assert.same { buffer }, application.buffers
 
     it 'closes a single untitled buffer if present', ->
+
       config.autoclose_single_buffer = true
       application\new_buffer!
       buffer = application\new_buffer!

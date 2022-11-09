@@ -2,11 +2,17 @@
 /* License: MIT (see LICENSE.md at the top-level directory of the distribution) */
 
 #include "main.h"
+
+//For logging
+#include "log.h"
+
 #include <gio/gio.h>
 #include <string.h>
 
+// Stringification
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
+
 
 static void lua_run(int argc, char *argv[], const gchar *app_root, lua_State *L)
 {
@@ -66,6 +72,10 @@ static gchar *get_app_root(const gchar *invocation_path)
   g_object_unref(app);
   g_object_unref(parent);
   g_object_unref(root);
+
+  log_debug("Path : %s", path);
+
+
   return path;
 }
 
