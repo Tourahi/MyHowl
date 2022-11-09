@@ -1,0 +1,45 @@
+#! /bin/sh
+#
+# Copyright 2012-2015 The Howl Developers
+# License: MIT (see LICENSE.md at the top-level directory of the distribution)
+
+os=`uname -s`
+([ "$os" = "Darwin" ] || [ "$os" = "FreeBSD" ] || [ "$os" = "OpenBSD" ]) && sha256="shasum -b -a 256" || sha256=sha256sum
+
+file=$1; shift
+checksum=$1; shift
+tmp=$(tempfile 2> /dev/null)
+
+# tempfile is not always available
+if [ -z "$tmp" ]; then
+  tmpdir=$TMPDIR
+  if [ -z "$tmpdir" ]; then
+    tmpdir=/tmp
+  fi
+  tmp=$tmpdir/howl_download$RANDOM$(date +"%s").$$
+fi
+
+echo "Downloading $file.."
+if which curl >/dev/null 2>&1; then
+  curl -Lo $tmp $file || exit 1
+else
+  wget -O $tmp $file || exit 1
+fi
+
+file_checksum=$($sha256 $tmp | awk '{print $1}')
+
+if [ "$checksum" != "$file_checksum" ]; then
+  echo "ERROR: Checksum mismatch for $file (expected $checksum, got $file_checksum)"
+  rm $tmp
+  exit 1
+fi
+
+echo "Checksum OK."
+
+cmd=$(echo "$@" | sed -e "s|{file}|$tmp|g")
+echo $cmd
+$cmd
+ec=$?
+rm $tmp
+exit $ec
+

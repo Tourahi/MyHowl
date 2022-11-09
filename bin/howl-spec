@@ -1,0 +1,31 @@
+#! /bin/sh
+#
+# Copyright 2016 The Howl Developers
+# License: MIT (see LICENSE.md at the top-level directory of the distribution)
+
+ROOT=$(cd $(dirname $0)/.. && pwd)
+for howl in $ROOT/bin/howl $ROOT/src/howl; do
+  if [ -e $howl ]; then
+    HOWL=$howl
+    break
+  fi
+done
+
+if [ -z "$HOWL" ]; then
+  echo "Could not locate howl executable"
+  exit 1
+fi
+
+if [ -z "$HOWL_SPEC_SINGLY" ]; then
+  exec $HOWL --spec --pattern=_spec.moon $*
+else
+  for spec in `find $* -name '*_spec.moon'`
+  do
+    echo $spec
+    $HOWL --spec --pattern=_spec.moon $spec
+    exit_code=$?;
+    if [ "$exit_code" != "0" ]; then exit $exit_code; fi
+  done
+  exit 0
+fi
+
